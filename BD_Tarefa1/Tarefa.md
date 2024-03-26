@@ -236,3 +236,94 @@ Jogador.Pseudonimo = nivel.NomePseud order by nivel.Bonus desc;
 select Pseudonimo, Bonus from Jogador, Nivel where
 Jogador.Pseudonimo = nivel.NomePseud order by nivel.Bonus asc;
 ```
+
+## Exemplos
+
+```sql
+create database if not exists atv03;
+
+use atv03;
+
+-- Funcionarios -----------------------------------------------------------
+create table if not exists funcionarios
+(
+	id_func int auto_increment primary key,
+	nome_func varchar(100) not null,
+    sexo_func enum("F","M") not null,
+    dtadmissao_func date not null,
+    salario_func decimal(10,2) not null,
+    id_depart int not null,
+    foreign key (id_depart) references departamentos (id_depart) 
+);
+
+insert into funcionarios (nome_func,sexo_func,dtadmissao_func,salario_func,id_depart) values 
+("visconde","M",'1983-02-01',1230.00,3),
+("pedrinho","M",'1990-07-29',867.00,3),
+("dona benta","F",'1992-11-30',2560.00,1),
+("emillia","F",'1998-02-22',1170.00,2),
+("rabico","M",'2000-09-08',2300.00,1);
+
+
+-- Alunos ------------------------------------------------------------------ 
+create table if not exists alunos
+(
+	id_aluno int auto_increment primary key,
+    nome_aluno varchar(100) not null,
+    sexo_aluno enum("F","M")
+);
+
+insert into alunos (nome_aluno,sexo_aluno)   values
+("visconde","M"),
+("dona benta","F"),
+("rabico","M"),
+("cuca","F");
+
+
+-- Departamentos -----------------------------------------------------------
+create table if not exists departamentos
+(
+	id_depart int auto_increment not null primary key,
+    nome_depart varchar(30) not null    
+);
+
+insert into departamentos (nome_depart)  values
+("adminstração"),
+("contabilidade"),
+("informatica");
+
+
+-- EXEMPLO 1  - SELEÇÃO 
+select * from funcionarios where sexo_func ="F";
+
+-- EXEMPLO 2 - SELEÇÃO 
+select * from funcionarios where sexo_func = "M" and salario_func > 1000.00 ; 
+
+-- EXEMPLO 3 - PROJEÇÃO 
+select nome_func,sexo_func,salario_func from funcionarios;
+
+-- EXEMPLO 4 - SELEÇÃO E PORJEÇÃO 
+select nome_func, salario_func from funcionarios where salario_func>2000.00;
+
+-- EXEMPLO 5 - UNIÃO
+select nome_func,sexo_func from funcionarios union
+select nome_aluno, sexo_aluno from alunos;
+
+-- EXEMPLO 6 - INSTERSECÇÃO
+select nome_func,sexo_func from funcionarios where nome_func in(select nome_aluno from alunos) ;
+select nome_func,sexo_func from funcionarios INTERSECT select nome_aluno,sexo_aluno from alunos;
+-- ESTA ALEGANDO ERRO, MAS NAO ESTA ERRADO, O WORKBENCH NAO ESTA ACEITANDO O CODIGO, MAS AINDA ASSIM FUNCIONA!!
+
+-- EXEMPLO 7 - DIFERENÇA
+select nome_func, sexo_func	 from funcionarios WHERE nome_func NOT IN (select nome_aluno from alunos);
+select nome_func, sexo_func	 from funcionarios EXCEPT select nome_aluno,sexo_aluno from alunos;
+-- ESTA ALEGANDO ERRO, MAS NAO ESTA ERRADO, O WORKBENCH NAO ESTA ACEITANDO O CODIGO, MAS AINDA ASSIM FUNCIONA!!
+
+-- EXEMPLO 8 - PRODUTO CARTESIANO
+select nome_func,sexo_func,dtadmissao_func,nome_depart from funcionarios, departamentos; 
+
+-- EXEMPLO 9 - JUNÇÃO
+select funcionarios.nome_func, funcionarios.sexo_func,funcionarios.dtadmissao_func, funcionarios.id_depart, 
+		departamentos.id_depart, departamentos.nome_depart from funcionarios inner join departamentos 
+        on funcionarios.id_depart = departamentos.id_depart;
+        
+```
